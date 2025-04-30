@@ -12,13 +12,12 @@ const int buttonPin = 5;      // Button pin
 const int potPin = 34;        // Potentiometer pin (analog)
 const int servoPin = 18;      // Servo motor pin
 
-const float tempThreshold = 32.0; // Temperature limit
-const float hysteresis = 0.5;     // Small range to avoid fast switching
+const float tempThreshold = 32; // Lowered temperature limit
+const float hysteresis = 0.2;     // Smaller hysteresis for quicker switching
 
 Servo myServo;               // Servo object
 
 // === Moving average setup ===
-// NUMERICAL METHOD USED: MOVING AVERAGE
 #define TEMP_HISTORY 10      // Number of temperature samples
 float tempReadings[TEMP_HISTORY];
 int tempIndex = 0;
@@ -78,15 +77,14 @@ void loop() {
     }
 
     // === Apply moving average to temperature ===
-    // NUMERICAL METHOD USED: MOVING AVERAGE
-    tempReadings[tempIndex] = temp;                      // Save latest reading
-    tempIndex = (tempIndex + 1) % TEMP_HISTORY;          // Circular buffer index
+    tempReadings[tempIndex] = temp;
+    tempIndex = (tempIndex + 1) % TEMP_HISTORY;
 
     float avgTemp = 0;
     for (int i = 0; i < TEMP_HISTORY; i++) {
-      avgTemp += tempReadings[i];                        // Sum all readings
+      avgTemp += tempReadings[i];
     }
-    avgTemp /= TEMP_HISTORY;                             // Divide to get average
+    avgTemp /= TEMP_HISTORY;
 
     float heatIndex = dht.computeHeatIndex(temp, humidity, false);
 
@@ -108,9 +106,11 @@ void loop() {
       digitalWrite(ledPin, LOW);
     }
 
-    // Show info based on mode
+    // Debug Output
     Serial.println("----------");
+    Serial.printf("🌡 Raw Temp: %.2f °C\n", temp);
     Serial.printf("🌡 Avg Temp: %.2f °C\n", avgTemp);
+    Serial.printf("🚨 Overheating: %s\n", overheating ? "YES" : "NO");
 
     switch (mode) {
       case 0:
@@ -125,9 +125,9 @@ void loop() {
 
       case 2:
         Serial.println("📙 Mode 2: Potentiometer Controls Servo");
-        int potValue = analogRead(potPin);                // Read potentiometer
-        int servoAngle = map(potValue, 0, 2640, 180, 0);   // Map value to angle
-        myServo.write(servoAngle);                        // Move servo
+        int potValue = analogRead(potPin);
+        int servoAngle = map(potValue, 0, 2640, 180, 0);  // Adjust if your ADC range is different
+        myServo.write(servoAngle);
         Serial.printf("🎚 Pot: %d -> Servo Angle: %d°\n", potValue, servoAngle);
         break;
     }

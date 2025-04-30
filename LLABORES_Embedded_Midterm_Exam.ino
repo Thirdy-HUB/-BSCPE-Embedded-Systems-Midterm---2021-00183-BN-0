@@ -12,7 +12,7 @@ const int buttonPin = 5;      // Button pin
 const int potPin = 34;        // Potentiometer pin (analog)
 const int servoPin = 18;      // Servo motor pin
 
-const float tempThreshold = 40.0; // Temperature limit
+const float tempThreshold = 32.0; // Temperature limit
 const float hysteresis = 0.5;     // Small range to avoid fast switching
 
 Servo myServo;               // Servo object
